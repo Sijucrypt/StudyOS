@@ -1,0 +1,55 @@
+{
+  "name": "studyos",
+  "version": "0.1.0",
+  "private": true,
+  "engines": {
+    "node": ">=22.13.0"
+  },
+  "overrides": {
+    "@typescript-eslint/typescript-estree": {
+      "minimatch": "^11.0.1"
+    }
+  },
+  "scripts": {
+    "predev": "node scripts/prepare-pdf-assets.mjs",
+    "dev": "next dev",
+    "prebuild": "node scripts/prepare-pdf-assets.mjs",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit",
+    "test": "node --experimental-strip-types --test tests/integration/*.test.mjs",
+    "library:worker": "node --env-file-if-exists=.env.local scripts/library-worker.mjs",
+    "telegram:worker": "node --env-file-if-exists=.env.local scripts/telegram-worker.mjs",
+    "telegram:webhook": "node --env-file-if-exists=.env.local scripts/telegram-webhook.mjs",
+    "test:e2e": "playwright test"
+  },
+  "dependencies": {
+    "@supabase/ssr": "^0.8.0",
+    "@supabase/supabase-js": "^2.95.0",
+    "@tiptap/core": "3.33.0",
+    "@tiptap/react": "3.33.0",
+    "@tiptap/starter-kit": "3.33.0",
+    "next": "^16.1.6",
+    "pdfjs-dist": "6.3.289",
+    "react": "^19.2.4",
+    "react-dom": "^19.2.4",
+    "react-pdf": "11.0.0",
+    "saxes": "6.0.0",
+    "tus-js-client": "4.3.1",
+    "yauzl": "3.4.0",
+    "zod": "^4.3.6"
+  },
+  "devDependencies": {
+    "@electric-sql/pglite": "^0.3.15",
+    "@playwright/test": "^1.58.2",
+    "@tailwindcss/postcss": "^4.1.18",
+    "@types/node": "^24",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "eslint": "^9",
+    "eslint-config-next": "^16.1.6",
+    "tailwindcss": "^4.1.18",
+    "typescript": "^5.9.3"
+  }
+}
