@@ -69,6 +69,8 @@ Resolve these when their respective phase begins.
 
 - Export the last saved note revision as Markdown or as versioned JSON through the same owner-scoped lookup as the editor. Downloads are private and never cached. JSON preserves the normalized editor structure; Markdown represents common formatting. Unsaved edits and account identifiers are excluded. Original materials remain separate downloads.
 - Run fixture-based checks on every review branch and pull request into main. A successful build and browser run are prerequisites for release; the [runbook](RELEASE.md) tracks the separate live acceptance checks. The production host, runner, budget, backup cadence and retention remain open.
+- Use the connected Render workspace for the initial HTTPS staging web app because Vercel access is unavailable in this session. Use the free Frankfurt web plan and deploy the verified review branch manually.
+- The owner subsequently selected Vercel and required free tiers only. Target Vercel Hobby for the web app and use the existing Supabase Free project. For library processing, Supabase Cron checks for due work and calls a token-protected Vercel function that processes one queue item. This keeps the parser's resource limits and uses the existing queue leases.
 
 ## Master plan detail
 

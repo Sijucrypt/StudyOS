@@ -10,7 +10,18 @@ Use an isolated staging project and synthetic files first. Record the commit, de
 4. Leave AI off for the first live check. Verify the app can be used without AI. Enable it only after provider eligibility, pricing, consent and usage limits have been reviewed.
 5. Start the library and Telegram workers using the commands in the [README](../README.md). Register the webhook against the chosen HTTPS URL and check Telegram's webhook status. Observe worker execution with every browser tab closed.
 
+### Library worker on Vercel Hobby
+
+Use the Vercel Hobby project and existing Supabase Free project. Vercel's native Hobby cron runs at most daily. Supabase Cron can look for due work every minute and invoke the bounded Vercel worker route only when the queue or cleanup needs it. [Vercel cron limits](https://vercel.com/docs/schedules/cron-jobs/usage-and-pricing) · [Supabase Cron](https://supabase.com/docs/guides/cron)
+
+1. Deploy the tested branch to the intended Hobby project. Set the two public Supabase variables and set `SUPABASE_WORKER_KEY` as a sensitive server environment variable.
+2. Generate a dedicated token with `node -e "console.log(require('node:crypto').randomBytes(32).toString('base64url'))"` in your own terminal. Store it as `STUDYOS_LIBRARY_CRON_SECRET` in Vercel's sensitive environment and as `studyos_library_worker_token` in Supabase Vault. Keep it out of shared logs and source control. The scheduler token authorizes only a worker tick.
+3. Verify `POST /api/internal/library-worker` returns 401 without the bearer token and 200 with it. Put the full stable HTTPS endpoint URL into Vault as `studyos_library_worker_url`. Apply the [scheduler SQL](../supabase/scripts/schedule-library-worker.sql) to staging.
+4. Upload a synthetic PDF, wait for the scheduled verification and extraction, then check the preview and compare downloaded bytes. Confirm cron succeeds on the next minute and inspect the HTTP response status without reading the request queue, which can contain the scheduler token. To disable the schedule, run `select cron.unschedule('studyos-library-worker');`.
+
 ## Acceptance and monitoring
+
+Run `node scripts/smoke-staging.mjs https://YOUR-STAGING-HOST` after the deployment becomes live. It checks that the sign-in form is configured and that signed-out visitors are redirected from the dashboard, library and settings. Use the checks below for the signed-in and worker flows.
 
 | Check | Pass condition |
 | --- | --- |

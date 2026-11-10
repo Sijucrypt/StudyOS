@@ -305,5 +305,7 @@ createServer(async (request, response) => {
 }).listen(port, "127.0.0.1", () => {
   process.env.NEXT_PUBLIC_SUPABASE_URL = "http://127.0.0.1:" + port;
   process.env.SUPABASE_WORKER_KEY = workerKey;
-  void import("../../scripts/library-worker.mjs");
+  if (process.env.STUDYOS_FIXTURE_MANUAL_LIBRARY !== "1") {
+    void import("../../scripts/library-worker.mjs");
+  }
 });

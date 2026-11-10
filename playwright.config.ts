@@ -4,6 +4,7 @@ const appPort = 3110;
 const fixturePort = 54339;
 const baseURL = "http://127.0.0.1:" + appPort;
 const channel = process.env.STUDYOS_BROWSER_CHANNEL;
+const libraryFunction = process.env.STUDYOS_TEST_LIBRARY_FUNCTION === "1";
 
 export default defineConfig({
   testDir: "./tests/e2e",
@@ -15,7 +16,11 @@ export default defineConfig({
     {
       command: "node tests/support/mock-supabase.mjs",
       url: "http://127.0.0.1:" + fixturePort + "/health",
-      env: { STUDYOS_FIXTURE_PORT: String(fixturePort), STUDYOS_TELEGRAM_FIXTURE: "1" },
+      env: {
+        STUDYOS_FIXTURE_PORT: String(fixturePort),
+        STUDYOS_TELEGRAM_FIXTURE: "1",
+        STUDYOS_FIXTURE_MANUAL_LIBRARY: libraryFunction ? "1" : "0",
+      },
       timeout: 60_000,
     },
     {
@@ -30,6 +35,10 @@ export default defineConfig({
         STUDYOS_TELEGRAM_FIXTURE: "1",
         SUPABASE_TELEGRAM_SERVICE_KEY: "studyos-loopback-worker",
         TELEGRAM_WEBHOOK_SECRET: "studyos-loopback-webhook",
+        ...(libraryFunction ? {
+          SUPABASE_WORKER_KEY: "studyos-loopback-worker",
+          STUDYOS_LIBRARY_CRON_SECRET: "a".repeat(43),
+        } : {}),
       },
     },
   ],

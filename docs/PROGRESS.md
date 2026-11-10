@@ -80,3 +80,16 @@ Primary specification is the [StudyOS master plan](../STUDYOS_MASTER_PLAN.md). T
 - Added [GitHub Actions checks](../.github/workflows/checks.yml) and the [release runbook](RELEASE.md) for staging, smoke tests, monitoring, paired backups and rollback.
 - Passed lint, type checking, the production build, 21 integration and unit tests, and 10 browser tests on desktop and a 320px phone viewport. Note export was checked with keyboard navigation, widths from 320px to 1440px, both download formats, a signed-out visitor and a second signed-in account. The production dependency audit reported zero known vulnerabilities. Browser tests used local service fixtures.
 - Production still needs a public deployment, independently supervised workers, hosted sign-in and storage verification, real Telegram delivery, performance measurements on a physical phone, alerts, a paired restore exercise and confirmed operating costs. AI remains optional and off by default.
+
+### Staging deployment
+
+- Rechecked the hosted Supabase project. It is healthy, has five applied migrations and 22 application tables with RLS, and has one confirmed user. The private materials bucket has a 25 MB file limit.
+- Deployed commit `1db895f` to the free Render web service in Frankfurt. The staging smoke command passed against the local production build and against [the live staging URL](https://studyos-staging.onrender.com). It verified the sign-in form and signed-out redirects for the dashboard, library and settings.
+- Passed the live browser and Supabase check with two disposable accounts. Verified invalid-password rejection, sign-in, sign-out, course creation and updates, note autosave, and a planner deadline after reload. The other account could not open the course or note export, and the hosted Data API returned no course row for it. Removed both test accounts and verified the synthetic course was removed.
+- The staging deployment uses the existing Supabase project. The owner can sign in with the existing account. Live file processing and Telegram reminders still require their workers.
+
+### Library worker verification
+
+- Verified the hosted library with a disposable account and two synthetic PDFs, including a resumable upload over 6 MB. Ran the library worker from the local checkout against the staging queue. Both files were verified, saved extracted text for page one, displayed in the browser, and downloaded byte-for-byte. Removed the test account and its uploads.
+- The owner selected free-only hosting on Vercel. The library worker now has a bounded Vercel function entry point in addition to its standalone command. The [release runbook](RELEASE.md) records how to deploy the function and use Supabase Cron and Vault. Vercel account authentication, deployment, and live scheduling remain pending.
+- Verified the production build, parser bundle, lint, type check, and 21 integration and unit tests. The new worker browser test passed on desktop and phone viewports, including unauthorized requests and real PDF parsing against the loopback database fixture. The scheduler SQL passed with fixture extensions and dispatched only when jobs or cleanup were due.

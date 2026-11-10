@@ -68,8 +68,10 @@ test("private PDF library, extraction failure, and conflict-safe note autosave",
   try {
     await stale.goto(note);
     await expect(stale.getByRole("textbox", { name: "Note content" })).toHaveText("This is a study note.");
+    await page.bringToFront();
     await body.fill("The current revision.");
     await expect(page.getByRole("status")).toHaveText("Saved");
+    await stale.bringToFront();
     await stale.getByRole("textbox", { name: "Note content" }).fill("Stale draft");
     await expect(stale.getByRole("alert").filter({ hasText: "Your draft is still here" })).toBeVisible();
     await expect(stale.getByRole("textbox", { name: "Note content" })).toHaveText("Stale draft");

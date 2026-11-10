@@ -28,3 +28,6 @@ jobs:
       - run: npm test
       - run: npx playwright install --with-deps chromium
       - run: npm run test:e2e
+      - run: npm run test:e2e -- library-function.spec.ts
+        env:
+          STUDYOS_TEST_LIBRARY_FUNCTION: "1"
