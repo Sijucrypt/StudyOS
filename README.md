@@ -47,6 +47,9 @@ Delivery history distinguishes queued, sent, failed, skipped and unknown outcome
 
 ## Verify
 
+- To export a note, open it and expand **Manage note**. Choose Markdown for a readable file or JSON for the structured note. Both download the last saved revision. Original course files can be downloaded from their library pages.
+- See the [release runbook](docs/RELEASE.md) for staging, monitoring, backups and rollback.
+
 - `npm run lint`, `npm run typecheck`, and `npm run build` check the project.
 - `npm test` applies the migrations to embedded PostgreSQL and checks ownership, academic setup, private uploads and note revisions, AI safeguards, planner and timer rules, and Telegram linking and delivery states.
 - Run `npm run build`, then `npx playwright install chromium` and `npm run test:e2e` for the desktop and 320px phone flows. Set `STUDYOS_BROWSER_CHANNEL=msedge` if using installed Edge instead of downloading Chromium. The suite uses a loopback Supabase test double backed by the real migrations in embedded PostgreSQL. The library and Telegram workers run as separate processes. Test accounts, files and simulated messages are disposable.

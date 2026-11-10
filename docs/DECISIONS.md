@@ -65,6 +65,11 @@ Resolve these when their respective phase begins.
 - Lead times range from zero to 1,440 minutes. Advance reminders expire at the scheduled event or deadline. At-time alerts have a five-minute grace period. Quiet hours can cross midnight, use the profile time zone, and defer only within the delivery window. Daily digests cover the owner's local day.
 - Claims and sends use separate fenced leases. Explicit temporary provider errors retry with bounded backoff and Telegram's requested delay. For ambiguous sends, the implementation favors duplicate prevention over the master plan's at-least-once delivery target: an unconfirmed send or expired send lease is recorded as delivery unknown and is not automatically retried. Confirm this tradeoff before enabling live delivery. An external send already in progress cannot be recalled after unlinking or cancelling.
 
+## Phase 6 implementation decisions
+
+- Export the last saved note revision as Markdown or as versioned JSON through the same owner-scoped lookup as the editor. Downloads are private and never cached. JSON preserves the normalized editor structure; Markdown represents common formatting. Unsaved edits and account identifiers are excluded. Original materials remain separate downloads.
+- Run fixture-based checks on every review branch and pull request into main. A successful build and browser run are prerequisites for release; the [runbook](RELEASE.md) tracks the separate live acceptance checks. The production host, runner, budget, backup cadence and retention remain open.
+
 ## Master plan detail
 
 ### 19. Risks and tradeoffs

@@ -56,7 +56,7 @@ Primary specification is the [StudyOS master plan](../STUDYOS_MASTER_PLAN.md). T
 
 ## 9 November 2026 — Phase 5
 
-**Status:** Telegram linking, reminders and delivery history are implemented and verified locally. The live Telegram acceptance check and hosted Supabase staging checks remain pending. Phase 6 awaits owner approval.
+**Status:** Telegram linking, reminders and delivery history are implemented and verified locally. The live Telegram acceptance check and hosted Supabase staging checks remain pending. The owner subsequently authorized Phase 6.
 
 - Added one-time private-chat linking, a verified webhook, test messages, and unlink from either StudyOS or the bot.
 - Added per-kind study and deadline reminders, lead times, quiet hours and a local-time daily digest. Planner edits and cancellations reconcile the durable queue.
@@ -70,4 +70,13 @@ Primary specification is the [StudyOS master plan](../STUDYOS_MASTER_PLAN.md). T
 - Created a separate StudyOS project in WajuAi's Supabase organization, in the Ireland region. Supabase quoted $0 per month for project creation and reported the project healthy.
 - Configured the project's URL and publishable key in the ignored local environment file. The owner applied the five migrations with the CLI. Verified that hosted migration history matches the repository and that RLS is enabled on all 22 application tables.
 - Disabled public sign-ups in hosted Supabase Auth and verified that anonymous sign-ins were already disabled.
-- Staging still needs a confirmed owner account, the server key, a public HTTPS deployment and webhook verification.
+- Verified that the owner account exists and its email is confirmed. Staging still needs the server keys for the workers, a public HTTPS deployment and webhook verification.
+
+## 10 November 2026 — Phase 6
+
+**Status:** Note export and release checks implemented. The live release gate remains open.
+
+- Added owner-only Markdown and JSON downloads for the last saved note revision. Existing private original downloads remain available.
+- Added [GitHub Actions checks](../.github/workflows/checks.yml) and the [release runbook](RELEASE.md) for staging, smoke tests, monitoring, paired backups and rollback.
+- Passed lint, type checking, the production build, 21 integration and unit tests, and 10 browser tests on desktop and a 320px phone viewport. Note export was checked with keyboard navigation, widths from 320px to 1440px, both download formats, a signed-out visitor and a second signed-in account. The production dependency audit reported zero known vulnerabilities. Browser tests used local service fixtures.
+- Production still needs a public deployment, independently supervised workers, hosted sign-in and storage verification, real Telegram delivery, performance measurements on a physical phone, alerts, a paired restore exercise and confirmed operating costs. AI remains optional and off by default.
