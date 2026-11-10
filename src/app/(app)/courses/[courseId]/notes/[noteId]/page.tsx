@@ -10,6 +10,7 @@ export default async function Note({ params }: { params: Promise<{ courseId: str
   const { courseId, noteId } = await params;
   const note = await getNote(courseId, noteId);
   const body = normalizeNote(note.body);
+  const download = "/courses/" + courseId + "/notes/" + noteId + "/export?format=";
   return <>
     <div className="page-head">
       <Link className="back" href={"/courses/" + courseId + "/notes"}>← Course notes</Link>
@@ -19,6 +20,13 @@ export default async function Note({ params }: { params: Promise<{ courseId: str
       : <p role="alert" className="feedback error">This note contains unsupported formatting and could not be opened.</p>}
     <details className="panel">
       <summary>Manage note</summary>
+      {body && <>
+        <p>Download the last saved version.</p>
+        <div className="row">
+          <a className="button secondary" href={download + "md"} download>Download Markdown</a>
+          <a className="button secondary" href={download + "json"} download>Download JSON</a>
+        </div>
+      </>}
       <ActionForm action={removeNote.bind(null, courseId, noteId)}><Submit variant="secondary">Remove note</Submit></ActionForm>
     </details>
   </>;

@@ -1,4 +1,5 @@
 import { expect, test, type Page } from "@playwright/test";
+import { readFile } from "node:fs/promises";
 import { pdfFixture } from "../support/documents.mjs";
 
 async function signIn(page: Page, email: string) {
@@ -78,12 +79,55 @@ test("private PDF library, extraction failure, and conflict-safe note autosave",
   await page.reload();
   await expect(body).toHaveText("The current revision.");
 
+  const exportUrl = note + "/export?format=";
+  const manage = page.locator("summary").filter({ hasText: "Manage note" });
+  await manage.focus();
+  await page.keyboard.press("Enter");
+  if (info.project.name === "desktop") {
+    const viewport = page.viewportSize()!;
+    for (const width of [320, 375, 768, 1024, 1440]) {
+      await page.setViewportSize({ ...viewport, width });
+      await expect(page.getByRole("link", { name: "Download JSON" })).toBeVisible();
+      expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(width);
+    }
+    await page.setViewportSize(viewport);
+  }
+  await page.keyboard.press("Tab");
+  await expect(page.getByRole("link", { name: "Download Markdown" })).toBeFocused();
+  const markdownEvent = page.waitForEvent("download");
+  await page.keyboard.press("Enter");
+  const markdown = await markdownEvent;
+  expect(markdown.suggestedFilename()).toBe("revision-check.md");
+  expect(await readFile((await markdown.path())!, "utf8")).toBe("# Revision check\n\nThe current revision\\.\n");
+  const jsonEvent = page.waitForEvent("download");
+  await page.getByRole("link", { name: "Download JSON" }).click();
+  const json = await jsonEvent;
+  expect(json.suggestedFilename()).toBe("revision-check.json");
+  const payload = JSON.parse(await readFile((await json.path())!, "utf8"));
+  expect(payload).toMatchObject({
+    schemaVersion: 1, title: "Revision check",
+    body: { type: "doc", content: [{ type: "paragraph", content: [{ type: "text", text: "The current revision." }] }] },
+  });
+  expect(payload.revision).toBeGreaterThan(1);
+  expect(payload).not.toHaveProperty("userId");
+  expect((await page.request.get(exportUrl + "md")).headers()).toMatchObject({
+    "cache-control": "private, no-store",
+    "content-disposition": 'attachment; filename="revision-check.md"',
+    "x-content-type-options": "nosniff",
+  });
+  expect((await page.request.get(exportUrl + "html")).status()).toBe(400);
+
   const other = await browser.newPage();
   try {
+    const guest = await other.request.get(exportUrl + "md", { maxRedirects: 0 });
+    expect([303, 307]).toContain(guest.status());
+    expect(guest.headers().location).toMatch(/\/login$/);
+    expect(guest.headers()["content-disposition"]).toBeUndefined();
     await signIn(other, "bob@studyos.test");
     await other.goto(note);
     await expect(other.getByText("This page could not be found.")).toBeVisible();
     expect((await other.request.get(source + "/file?preview=1", { maxRedirects: 0 })).status()).toBe(404);
+    expect((await other.request.get(exportUrl + "json", { maxRedirects: 0 })).status()).toBe(404);
   } finally {
     await other.close();
   }
